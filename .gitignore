@@ -2,3 +2,10 @@
 .idea/
 __pycache__/
 temp.py
+dist/
+src/wazirx_trader.egg-info/
+src/__pycache__/
+src/trade/__pycache__/
+src/wazirx/__pycache__/
+src/wazirx/rest/__pycache__/
+src/wazirx/websocket/__pycache__/
