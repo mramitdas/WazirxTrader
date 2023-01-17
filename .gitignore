@@ -3,7 +3,7 @@
 __pycache__/
 temp.py
 dist/
-src/wazirx_trader.egg-info/
+src/wazirx/rest/wazir_trader.egg-info/
 src/__pycache__/
 src/trade/__pycache__/
 src/wazirx/__pycache__/
