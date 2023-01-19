@@ -75,6 +75,12 @@ class Client(BaseClient):
 
     def _get_signature(self, api_detail, kwargs={}):
         sign_payload = urllib.parse.urlencode(kwargs)
-        signature = hmac.new(bytes(self.secret_key, 'latin-1'), msg=bytes(sign_payload, 'latin-1'),
-                             digestmod=hashlib.sha256).hexdigest()
+        signature = hmac.new(
+            bytes(
+                self.secret_key,
+                'latin-1'),
+            msg=bytes(
+                sign_payload,
+                'latin-1'),
+            digestmod=hashlib.sha256).hexdigest()
         return signature

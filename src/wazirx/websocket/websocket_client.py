@@ -36,8 +36,10 @@ class WebsocketClient(BaseWebsocketClient):
 
     def get_auth_token(self):
         rest_client = Client(self.api_key, self.secret_key)
-        status_code, response = rest_client.send("create_auth_token",
-                                                 {"recvWindow": 10000, "timestamp": int(time.time() * 1000)})
+        status_code, response = rest_client.send(
+            "create_auth_token", {
+                "recvWindow": 10000, "timestamp": int(
+                    time.time() * 1000)})
         if status_code == 200:
             self.auth_key = response["auth_key"]
         return self.auth_key
@@ -141,14 +143,14 @@ class WebsocketClient(BaseWebsocketClient):
         events = []
         if symbol:
             for s in symbol:
-                events.append(s+"@trades")
+                events.append(s + "@trades")
         await self._sub_unsub(event=action, subscription=events, id=id)
 
     async def depth(self, symbol=[], id=0, action="subscribe"):
         events = []
         if symbol:
             for s in symbol:
-                events.append(s+"@depth")
+                events.append(s + "@depth")
         await self._sub_unsub(event=action, subscription=events, id=id)
 
     async def all_market_ticker(self, id=0, action="subscribe"):
@@ -186,5 +188,5 @@ class WebsocketClient(BaseWebsocketClient):
     def get_mapped_streams(self, symbols=[], type=""):
         events = []
         for s in symbols:
-            events.append(s+"@"+type)
+            events.append(s + "@" + type)
         return events

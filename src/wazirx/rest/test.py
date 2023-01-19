@@ -26,5 +26,10 @@ print(c.send("historical_trades",
                  "timestamp": int(time.time() * 1000)}
              ))
 print(c.send('create_order',
-             {"symbol": "btcinr", "side": "buy", "type": "limit", "price": 500, "quantity": 1, "recvWindow": 10000,
+             {"symbol": "btcinr",
+              "side": "buy",
+              "type": "limit",
+              "price": 500,
+              "quantity": 1,
+              "recvWindow": 10000,
               "timestamp": int(time.time() * 1000)}))
