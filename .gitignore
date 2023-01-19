@@ -9,3 +9,4 @@ src/trade/__pycache__/
 src/wazirx/__pycache__/
 src/wazirx/rest/__pycache__/
 src/wazirx/websocket/__pycache__/
+src/wazir_trader.egg-info/
