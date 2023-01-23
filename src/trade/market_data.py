@@ -1,51 +1,87 @@
-from wazirx.rest.client import Client
-from src.trade.coins import coins
+import itertools
 from time import sleep
+
+from wazirx.rest.client import Client
+
+from trade.symbol import symbol_list
+
+from .exception import MissingAttributeError
 
 
 class MarketData:
-    def __init__(self, api_key=None, api_secret=None,
-                 symbol=None, limit=None, depth_limit=None):
-        self.client = Client(api_key=api_key, secret_key=api_secret)
-        self.symbol = {}
+    def __init__(self, api_key=None, api_secret=None):
+        if not api_key:
+            raise MissingAttributeError("api_key required")
+        if not api_secret:
+            raise MissingAttributeError("api_secret required")
 
-        if depth_limit:
-            self.depth_limit = depth_limit
-        else:
-            self.depth_limit = 5
+        self.client = Client(api_key=api_key, secret_key=api_secret)
+        self.filtered_asset = {}
 
     def chart_24hr(self):
         return self.client.send("tickers")
 
-    def symbol_chart_24hr(self, symbol):
+    def symbol_chart_24hr(self, symbol=None):
+        if not symbol:
+            raise MissingAttributeError("symbol required")
+
         return self.client.send("ticker", {"symbol": symbol})
 
-    def trades(self, symbol, limit):
+    def trades(self, symbol, trade_limit):
+        if not symbol:
+            raise MissingAttributeError("symbol required")
+        if not trade_limit:
+            raise MissingAttributeError("trade_limit required")
+
         return self.client.send("trades", {"symbol": symbol,
-                                           "limit": limit})
+                                           "limit": trade_limit})
 
-    def depth(self, symbol, limit):
+    def get_symbol_depth(self, symbol=None, trade_limit=None):
+        if not symbol:
+            raise MissingAttributeError("symbol required")
+        if not trade_limit:
+            raise MissingAttributeError("trade_limit required")
+
         return self.client.send("depth", {"symbol": symbol,
-                                          "limit": limit})
+                                          "limit": trade_limit})
 
-    def depth_cal(self, buy, sell):
+    def symbol_depth_calculator(self, buy, sell):
         return ((sell - buy) / buy) * 100
 
-    def coin_depth(self):
-        unsorted_coin = {}
-        for coin in coins:
+    def process_symbol(self, amount_limit=None, symbol_limit=None, depth_limit=None):
+
+        if not amount_limit:
+            raise MissingAttributeError("amount_limit required")
+
+        if not symbol_limit:
+            raise MissingAttributeError("symbol_limit required")
+
+        if not depth_limit:
+            raise MissingAttributeError("depth_limit required")
+
+        unsorted_symbols = {}
+        for symbol in symbol_list:
             sleep(1)
-            depth = self.depth(coin, 1)
+            depth = self.get_symbol_depth(symbol, 1)
             try:
-                sell = depth[1]["asks"][0][0]
-                buy = depth[1]["bids"][0][0]
+                sell = float(depth[1]["asks"][0][0])
+                buy = float(depth[1]["bids"][0][0])
 
-                depth_percentage = self.depth_cal(float(buy), float(sell))
+                depth_percentage = self.symbol_depth_calculator(buy, sell)
 
-                if depth_percentage >= self.depth_limit:
-                    unsorted_coin[coin] = {"depth": depth_percentage}
+                if depth_percentage >= depth_limit:
+                    unsorted_symbols[symbol] = {"depth": depth_percentage,
+                                                "buy": buy,
+                                                "sell": sell}
             except Exception:
                 pass
 
-        self.symbol = dict(sorted(unsorted_coin.items(),
-                                  key=lambda x: x[1]['depth'], reverse=True))
+        self.filtered_asset = dict(sorted(unsorted_symbols.items(),
+                                          key=lambda x: x[1]['depth'], reverse=True))
+
+        self.filtered_asset = dict(filter(lambda item:
+                                          item[1]["buy"] < amount_limit,
+                                          self.filtered_asset.items()))
+
+        self.filtered_asset = dict(itertools.islice(
+            self.filtered_asset.items(), symbol_limit))
