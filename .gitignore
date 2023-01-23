@@ -2,6 +2,7 @@
 .idea/
 __pycache__/
 temp.py
+test_technique.py
 dist/
 src/wazirx/rest/wazir_trader.egg-info/
 src/__pycache__/
