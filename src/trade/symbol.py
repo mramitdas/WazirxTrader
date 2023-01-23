@@ -1,4 +1,4 @@
-coins = [
+symbol_list = [
     'btcinr',
     'xrpinr',
     'ethinr',
