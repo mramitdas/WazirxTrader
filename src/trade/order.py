@@ -151,7 +151,7 @@ class Order:
 
     def process_order(self, process_type=None, data=None):
 
-        self.valipassdate(process_order=True)
+        self.validate(process_order=True)
 
         if process_type == "test_order":
             self.validate(new_order=True, symbol=data.get("symbol"),
