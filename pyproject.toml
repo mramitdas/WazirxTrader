@@ -25,7 +25,10 @@ classifiers = [
 ]
 dependencies = [
     "requests==2.28.2",
-    "websockets==10.4"
+    "websockets==10.4",
+    "pymongo==4.3.3",
+    "dnspython==2.3.0",
+    "pytz==2022.7.1"
 ]
 [tool.setuptools.packages.find]
 where = ["src"]
