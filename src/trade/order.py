@@ -53,16 +53,16 @@ class Order:
             if not price:
                 raise MissingAttributeError("price required")
             else:
-                if not type(price) is float:
+                if not type(price) is str:
                     raise TypeError(
-                        f"Expected a float for 'price' but received a {type(price).__name__}.")
+                        f"Expected a str for 'price' but received a {type(price).__name__}.")
 
             if not stop_price:
                 raise MissingAttributeError("stop_price required")
             else:
-                if not type(stop_price) is float:
+                if not type(stop_price) is str:
                     raise TypeError(
-                        f"Expected a float for 'stop_price' but received a {type(stop_price).__name__}.")
+                        f"Expected a str for 'stop_price' but received a {type(stop_price).__name__}.")
 
         elif query_order:
             if not order_id:
