@@ -6,8 +6,8 @@ class Base:
         """_summary_
 
         Args:
-            api_key (str, optional): _description_. Defaults to None.
-            api_secret (str, optional): _description_. Defaults to None.
+            api_key (str): wazirx api key
+            api_secret (str): wazirx secret key
         Returns:
             self.client: obj instance
         """
@@ -18,9 +18,7 @@ class Base:
         Test connectivity to the Rest API.
 
         Rate limit: 1 per second
-
         Query Parameters: NONE
-
         Returns:
             dict: {}
         """
@@ -31,9 +29,7 @@ class Base:
         Fetch system status.
 
         Rate limit: 1 per second
-
         Query Parameters: NONE
-
         Returns:
             serverTime: long
         """
@@ -44,9 +40,7 @@ class Base:
         Test connectivity to the Rest API and get the current server time.
 
         Rate limit: 1 per second
-
         Query Parameters: NONE
-
         Returns:
             status: str
             message: str
@@ -58,9 +52,7 @@ class Base:
         Fetch all exchange information
 
         Rate limit: 1 per second
-
         Query Parameters: NONE
-
         Returns:
             timezone: str
             serverTime: long
