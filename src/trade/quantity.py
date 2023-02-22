@@ -58,7 +58,7 @@ class Quantity:
 
         calculates the amount to be allocated for each crypto
 
-        Query Parameters: NONE
+        Args: NONE
         Returns:
             int: amount allocated for each crypto
         """
@@ -70,7 +70,7 @@ class Quantity:
         calculates the quantity to be purchased for each crypto
         condition -> min cost to be purchased should be greater than 60 (wazrix limitation)
 
-        Query Parameters: NONE
+        Args: NONE
         Returns:
             int: amount allocated for each crypto
         """
