@@ -28,7 +28,7 @@ class User:
         Get current account information.
 
         Rate limit: 1 per second
-        Query Parameters: None
+        Args: None
         Returns:
             dict: {}
         """
@@ -44,7 +44,7 @@ class User:
         Get fund details for current account.
 
         Rate limit: 1 per second
-        Query Parameters: None
+        Args: None
         Returns:
             list: [{}, {}]
         """
