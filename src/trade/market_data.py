@@ -98,7 +98,7 @@ class MarketData:
         24 hour rolling window price change statistics.
 
         Rate limit: 1 per second
-        Query Parameters:
+        Args:
             symbol: crypto name
         Returns:
             dict: {}
@@ -115,7 +115,7 @@ class MarketData:
         Get recent trades.
 
         Rate limit: 1 per second
-        Query Parameters:
+        Args:
             symbol: crypto name
             limit: no of records
         Returns:
@@ -130,7 +130,7 @@ class MarketData:
         Get symbol depth.
 
         Rate limit: 1 per second
-        Query Parameters:
+        Args:
             symbol: crypto name
             limit: no of records
         Returns:
