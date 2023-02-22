@@ -18,7 +18,7 @@ class Base:
         Test connectivity to the Rest API.
 
         Rate limit: 1 per second
-        Query Parameters: NONE
+        Args: NONE
         Returns:
             dict: {}
         """
@@ -29,7 +29,7 @@ class Base:
         Fetch system status.
 
         Rate limit: 1 per second
-        Query Parameters: NONE
+        Args: NONE
         Returns:
             serverTime: long
         """
@@ -40,7 +40,7 @@ class Base:
         Test connectivity to the Rest API and get the current server time.
 
         Rate limit: 1 per second
-        Query Parameters: NONE
+        Args: NONE
         Returns:
             status: str
             message: str
@@ -52,7 +52,7 @@ class Base:
         Fetch all exchange information
 
         Rate limit: 1 per second
-        Query Parameters: NONE
+        Args: NONE
         Returns:
             timezone: str
             serverTime: long
