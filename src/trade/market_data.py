@@ -1,4 +1,5 @@
 import itertools
+from collections import OrderedDict
 from time import sleep
 
 from wazirx.rest.client import Client
@@ -183,12 +184,19 @@ class MarketData:
         if symbols is not None:
             symbol_list = symbols
         else:
-            from trade.symbol import symbol_list
+            from .symbol import Symbol
+            symbol_list = Symbol().symbol_list
 
         self.filtered_asset = {}
         for symbol in symbol_list:
-            sleep(1)
             depth = self.get_symbol_depth(symbol, 1)
+            sleep(1)
+            symbol_24hour_data = self.symbol_chart_24hr(symbol)
+            try:
+                volume = float(symbol_24hour_data[1]["volume"])
+            except Exception:
+                # exception occurs in case of newly listed symbol
+                volume = 0
             try:
                 sell = float(depth[1]["asks"][0][0])
                 buy = float(depth[1]["bids"][0][0])
@@ -198,12 +206,14 @@ class MarketData:
                     if depth_percentage >= depth_limit:
                         self.filtered_asset[symbol] = {
                             "depth": depth_percentage,
+                            "volume": volume,
                             "buy": buy,
                             "sell": sell,
                         }
                 else:
                     self.filtered_asset[symbol] = {
                         "depth": depth_percentage,
+                        "volume": volume,
                         "buy": buy,
                         "sell": sell,
                     }
@@ -211,21 +221,21 @@ class MarketData:
                 pass
 
         if apply_filter:
-            self.filtered_asset = dict(
+            self.filtered_asset = OrderedDict(
                 sorted(
                     self.filtered_asset.items(),
-                    key=lambda x: x[1]["depth"],
+                    key=lambda x: x[1]["volume"],
                     reverse=True,
                 )
             )
 
-            self.filtered_asset = dict(
+            self.filtered_asset = OrderedDict(
                 filter(
                     lambda item: item[1]["buy"] < amount_limit,
                     self.filtered_asset.items(),
                 )
             )
 
-            self.filtered_asset = dict(
+            self.filtered_asset = OrderedDict(
                 itertools.islice(self.filtered_asset.items(), symbol_limit)
             )
