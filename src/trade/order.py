@@ -1,5 +1,6 @@
 from datetime import datetime
-
+import traceback
+from .log import setup_logger
 from wazirx.rest.client import Client
 
 from .exception import MissingAttributeError
@@ -23,6 +24,7 @@ class Order:
 
         self.client = Client(api_key=api_key, secret_key=api_secret)
         self.recvWindow = 2000
+        self.log = setup_logger()
 
     def validate(
         self,
@@ -293,6 +295,7 @@ class Order:
                     stop_price=data.get("stop_price"),
                 )
             except Exception:
+                self.log.critical(traceback.format_exc())
                 return (404, {"error": "unable to create test order"})
 
         elif process_type == "new_order":
@@ -315,6 +318,7 @@ class Order:
                     stop_price=data.get("stop_price"),
                 )
             except Exception:
+                self.log.critical(traceback.format_exc())
                 return (404, {"error": "unable to create order"})
 
         elif process_type == "query_order":
@@ -323,6 +327,7 @@ class Order:
             try:
                 return self.query_order(order_id=data.get("order_id"))
             except Exception:
+                self.log.critical(traceback.format_exc())
                 return (404, {"error": "order doesn't exists"})
 
         elif process_type == "cancel_order":
@@ -336,6 +341,7 @@ class Order:
                     symbol=data.get("symbol"), order_id=data.get("order_id")
                 )
             except Exception:
+                self.log.critical(traceback.format_exc())
                 return (404, {"error": "unable to cancel order"})
 
         else:

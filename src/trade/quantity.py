@@ -1,4 +1,7 @@
+import traceback
+
 from .exception import MissingAttributeError
+from .log import setup_logger
 
 
 class Quantity:
@@ -15,6 +18,7 @@ class Quantity:
         self.base_amount = base_amount
         self.asset = asset
         self.share_percent = share_percent
+        self.log = setup_logger()
 
         self.validate(
             base_amount=self.base_amount,
@@ -99,5 +103,5 @@ class Quantity:
                                         self.asset[symbol]["buy"])
                     )
 
-            except Exception as e:
-                pass
+            except Exception:
+                self.log.error(traceback.format_exc())

@@ -1,8 +1,12 @@
 import threading
+import traceback
 from time import sleep
+
 from trade.database import DataBase
 from trade.market_data import MarketData
 from trade.order import Order
+
+from trade.log import setup_logger
 
 
 class SpreadTrading:
@@ -21,6 +25,7 @@ class SpreadTrading:
         self.trade_history = {}
         self.lock = threading.Lock()
 
+        self.log = setup_logger()
         self.retrieve_assets()
 
     def retrieve_assets(self):
@@ -36,10 +41,12 @@ class SpreadTrading:
         Args: NONE
         Returns: NONE
         """
-        # retrieving data from database
-        self.asset_list = self.db.query(
-            db_name="wazirx", table_name="asset")["data"]
-
+        try:
+            self.asset_list = self.db.query(
+                db_name="wazirx", table_name="asset")["data"]
+        except Exception:
+            self.log.critical(traceback.format_exc())
+            exit()
         # initiate trade history
         self.init_trade_history()
 
@@ -129,8 +136,8 @@ class SpreadTrading:
                         sell_price=depth[1]["asks"][0][0],
                         rival_sell_price=depth[1]["asks"][1][0],
                     )
-            except Exception as e:
-                print(e)
+            except Exception:
+                self.log.error(traceback.format_exc())
 
     def remove_completed_orders(self, asset, type=None):
         """_summary_

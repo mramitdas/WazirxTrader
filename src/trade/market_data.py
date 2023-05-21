@@ -1,10 +1,12 @@
 import itertools
+import traceback
 from collections import OrderedDict
 from time import sleep
 
 from wazirx.rest.client import Client
 
 from .exception import MissingAttributeError
+from .log import setup_logger
 
 
 class MarketData:
@@ -26,6 +28,7 @@ class MarketData:
 
         self.client = Client(api_key=api_key, secret_key=api_secret)
         self.filtered_asset = {}
+        self.log = setup_logger()
 
     def validate(
         self,
@@ -196,6 +199,7 @@ class MarketData:
                 volume = float(symbol_24hour_data[1]["volume"])
             except Exception:
                 # exception occurs in case of newly listed symbol
+                self.log.warning(traceback.format_exc())
                 volume = 0
             try:
                 sell = float(depth[1]["asks"][0][0])
@@ -218,7 +222,7 @@ class MarketData:
                         "sell": sell,
                     }
             except Exception:
-                pass
+                self.log.error(traceback.format_exc())
 
         if apply_filter:
             self.filtered_asset = OrderedDict(
