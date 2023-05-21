@@ -6,10 +6,13 @@ from trade.order import Order
 
 
 class SpreadTrading:
-    def __init__(self, api_key=None, api_secret=None, db_url=None):
+    def __init__(self, api_key=None, api_secret=None, db_url=None, Test=False):
         self.api_key = api_key
         self.api_secret = api_secret
         self.db_url = db_url
+
+        self.test = Test
+        self.order_id = 0
 
         self.market_data = MarketData(self.api_key, self.api_secret)
         self.order = Order(self.api_key, self.api_secret)
@@ -17,8 +20,6 @@ class SpreadTrading:
         self.asset_list = {}
         self.trade_history = {}
         self.lock = threading.Lock()
-
-        # self.order_id = 0
 
         self.retrieve_assets()
 
@@ -226,37 +227,39 @@ class SpreadTrading:
                     order_price = rival_price
 
                 if order_cancel is True:
-                    # #for testing only
-                    # order_remove_count += 1
-                    # with self.lock:
-                    #   del self.trade_history[asset][type][order_id]
+                    if self.test:
+                        order_remove_count += 1
+                        with self.lock:
+                            del self.trade_history[asset][type][order_id]
 
-                    # if completed_orders:
-                    #   completed_orders[order_id] = {'status': True, 'price': order_price}
+                        if completed_orders:
+                            completed_orders[order_id] = {
+                                'status': True, 'price': order_price}
+                    else:
+                        order_info = self.order.process_order(
+                            process_type="query_order", data={"order_id": order_id}
+                        )
+                        if order_info[0] == 200:
+                            if (
+                                order_info[1]["status"] != "done"
+                                and float(order_info[1]["executedQty"]) == 0
+                            ):
+                                response = self.order.process_order(
+                                    process_type="cancel_order",
+                                    data={"symbol": asset,
+                                          "order_id": order_id},
+                                )
 
-                    order_info = self.order.process_order(
-                        process_type="query_order", data={"order_id": order_id}
-                    )
-                    if order_info[0] == 200:
-                        if (
-                            order_info[1]["status"] != "done"
-                            and float(order_info[1]["executedQty"]) == 0
-                        ):
-                            response = self.order.process_order(
-                                process_type="cancel_order",
-                                data={"symbol": asset, "order_id": order_id},
-                            )
+                                if response[0] == 200:
+                                    order_remove_count += 1
 
-                            if response[0] == 200:
-                                order_remove_count += 1
-
-                                with self.lock:
-                                    del self.trade_history[asset][type][order_id]
-                                if completed_orders:
-                                    completed_orders[order_id] = {
-                                        "status": True,
-                                        "price": order_price,
-                                    }
+                                    with self.lock:
+                                        del self.trade_history[asset][type][order_id]
+                                    if completed_orders:
+                                        completed_orders[order_id] = {
+                                            "status": True,
+                                            "price": order_price,
+                                        }
 
         if completed_orders is None:
             return order_remove_count, str(order_price)
@@ -311,22 +314,22 @@ class SpreadTrading:
                 "stop_price": order_price,
             }
 
-            # # for testing only
-            # self.trade_history[asset]["meta"]["buy_count"] += 1
-            # self.order_id += 1
-            # self.trade_history[asset]["buy"][self.order_id] = {"status": False,
-            #                                                    "price": float(order_price)}
-
-            response = self.order.process_order(
-                process_type="new_order", data=data)
-
-            if response[0] == 201 or response[0] == 200:
+            if self.test:
                 self.trade_history[asset]["meta"]["buy_count"] += 1
+                self.order_id += 1
+                self.trade_history[asset]["buy"][self.order_id] = {"status": False,
+                                                                   "price": float(order_price)}
+            else:
+                response = self.order.process_order(
+                    process_type="new_order", data=data)
 
-                self.trade_history[asset]["buy"][response[1]["id"]] = {
-                    "status": False,
-                    "price": float(response[1]["price"]),
-                }
+                if response[0] == 201 or response[0] == 200:
+                    self.trade_history[asset]["meta"]["buy_count"] += 1
+
+                    self.trade_history[asset]["buy"][response[1]["id"]] = {
+                        "status": False,
+                        "price": float(response[1]["price"]),
+                    }
 
     def sell_asset(self, asset, sell_price, rival_sell_price):
         """_summary_
@@ -413,21 +416,21 @@ class SpreadTrading:
                 "stop_price": completed_orders[order_id]["price"],
             }
 
-            # # for testing only
-            # self.trade_history[asset]["meta"]["sell_count"] += 1
-            # self.order_id += 1
-            # self.trade_history[asset]["sell"][self.order_id] = {"status": False,
-            #                                                     "price": float(order_price)}
-
-            response = self.order.process_order(
-                process_type="new_order", data=data)
-
-            if response[0] == 201 or response[0] == 200:
+            if self.test:
                 self.trade_history[asset]["meta"]["sell_count"] += 1
-                self.trade_history[asset]["sell"][response[1]["id"]] = {
-                    "status": False,
-                    "price": float(response[1]["price"]),
-                }
+                self.order_id += 1
+                self.trade_history[asset]["sell"][self.order_id] = {"status": False,
+                                                                    "price": float(order_price)}
+            else:
+                response = self.order.process_order(
+                    process_type="new_order", data=data)
+
+                if response[0] == 201 or response[0] == 200:
+                    self.trade_history[asset]["meta"]["sell_count"] += 1
+                    self.trade_history[asset]["sell"][response[1]["id"]] = {
+                        "status": False,
+                        "price": float(response[1]["price"]),
+                    }
 
     def check_status(self, type):
         """_summary_
@@ -444,14 +447,14 @@ class SpreadTrading:
             order_list = self.trade_history[symbol][type]
 
             for order_id in order_list:
-                # # for testing only
-                # self.trade_history[symbol][type][order_id]["status"] = True
+                if self.test:
+                    self.trade_history[symbol][type][order_id]["status"] = True
+                else:
+                    order_info = self.order.process_order(
+                        process_type="query_order", data={"order_id": order_id}
+                    )
 
-                order_info = self.order.process_order(
-                    process_type="query_order", data={"order_id": order_id}
-                )
-
-                if order_info[0] == 200:
-                    if order_info[1]["status"] == "done":
-                        with self.lock:
-                            self.trade_history[symbol][type][order_id]["status"] = True
+                    if order_info[0] == 200:
+                        if order_info[1]["status"] == "done":
+                            with self.lock:
+                                self.trade_history[symbol][type][order_id]["status"] = True
