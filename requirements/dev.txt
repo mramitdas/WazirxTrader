@@ -1,0 +1,18 @@
+-r base.txt
+autoflake
+black
+click
+coverage
+flake8
+iniconfig
+isort
+mccabe
+mypy-extensions
+packaging
+pathspec
+platformdirs
+pluggy
+pycodestyle
+pyflakes
+pytest
+pytest-cov
