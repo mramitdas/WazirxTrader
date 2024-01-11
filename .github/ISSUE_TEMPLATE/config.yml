@@ -1,0 +1,7 @@
+contact_links:
+    - name: 📃 Documentation Issue
+      url: https://github.com/mramitdas/WazirxTrader/issues/new
+      about: This issue tracker is not for documentation issues. Please file documentation issues here.
+    - name: 🤔 Questions and Help
+      url: https://github.com/mramitdas/WazirxTrader/wiki
+      about: This issue tracker is not for support questions. Please refer to the WazirxTrader wiki.
